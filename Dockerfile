@@ -33,7 +33,7 @@ RUN gaiad init coinmetrics
 COPY genesis.json /home/runner/.gaiad/config/genesis.json
 
 RUN set -ex; \
-	sed -i -e "s/seeds = \"\"/seeds = \"$SEEDS\"/" -e 's?laddr = "tcp://127.0.0.1:26657"?laddr = "tcp://0.0.0.0:26657"?' .gaiad/config/config.toml; \
+	sed -i -e "s/seeds = \"\"/seeds = \"$SEEDS\"/" -e 's?laddr = "tcp://127.0.0.1:26657"?laddr = "tcp://0.0.0.0:26657"?' .gaia/config/config.toml; \
 	gaiad unsafe-reset-all
 
 ENTRYPOINT ["gaiad"]
