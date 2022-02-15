@@ -25,5 +25,15 @@ RUN chown -R 1000:1000 /opt
 USER cosmos
 WORKDIR /opt
 
+# gRPC port
+EXPOSE 9090
+# RestAPi port
+EXPOSE 1317
+# Protmetheus port
+EXPOSE 26600
+# P2P port
+EXPOSE 26656
+# Tendermint ABCI port
+EXPOSE 26657
 
-# ENTRYPOINT ["gaiad"]
+ENTRYPOINT ["gaiad"]
