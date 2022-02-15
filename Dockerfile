@@ -1,39 +1,29 @@
-FROM golang:latest as builder
+FROM golang:1.17-alpine3.14 AS builder
 
 ARG VERSION
 
-RUN set -ex; \
-	mkdir -p $GOPATH/src/github.com/cosmos; \
-	git clone --depth 1 -b v${VERSION} https://github.com/cosmos/gaia.git $GOPATH/src/github.com/cosmos/gaia; \
-	cd $GOPATH/src/github.com/cosmos/gaia; \
-	make install
-
-
-FROM debian:stretch
+# Set up dependencies
+# Ref : https://github.com/cosmos/gaia/blob/main/contrib/Dockerfile.test
+ENV PACKAGES curl make git libc-dev bash gcc linux-headers eudev-dev python3
 
 RUN set -ex; \
-	apt-get update; \
-	apt-get install -y --no-install-recommends \
-		netbase \
-		ca-certificates \
-		curl \
-	; \
-	rm -rf /var/lib/apt/lists/*
+	apk add --no-cache $PACKAGES
 
-COPY --from=builder /go/bin/* /usr/bin/
+RUN git clone --depth 1 -b v${VERSION} https://github.com/cosmos/gaia.git /opt/gaia
+WORKDIR /opt/gaia
+RUN make install
 
-RUN useradd -m -u 1000 -s /bin/bash runner
-USER runner
-WORKDIR /home/runner
-
-ARG SEEDS
-
-RUN gaiad init coinmetrics
-
-COPY genesis.json /home/runner/.gaiad/config/genesis.json
+FROM alpine:3.14
 
 RUN set -ex; \
-	sed -i -e "s/seeds = \"\"/seeds = \"$SEEDS\"/" -e 's?laddr = "tcp://127.0.0.1:26657"?laddr = "tcp://0.0.0.0:26657"?' .gaia/config/config.toml; \
-	gaiad unsafe-reset-all
+	apk add --update ca-certificates
 
-ENTRYPOINT ["gaiad"]
+COPY --from=builder /go/bin/gaiad /usr/bin/gaiad
+
+RUN adduser -D -u 1000 cosmos
+RUN chown -R 1000:1000 /opt
+USER cosmos
+WORKDIR /opt
+
+
+# ENTRYPOINT ["gaiad"]
