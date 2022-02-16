@@ -1,4 +1,4 @@
-FROM golang:1.17-alpine3.14 AS builder
+FROM golang:1.17-alpine3.15 AS builder
 
 ARG VERSION
 
@@ -13,7 +13,7 @@ RUN git clone --depth 1 -b v${VERSION} https://github.com/cosmos/gaia.git /opt/g
 WORKDIR /opt/gaia
 RUN make install
 
-FROM alpine:3.14
+FROM alpine:3.15
 
 RUN set -ex; \
 	apk add --update ca-certificates
