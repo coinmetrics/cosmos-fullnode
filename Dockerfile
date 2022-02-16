@@ -35,5 +35,7 @@ EXPOSE 26600
 EXPOSE 26656
 # Tendermint ABCI port
 EXPOSE 26657
+# Rosetta port
+EXPOSE 8080
 
 ENTRYPOINT ["gaiad"]
